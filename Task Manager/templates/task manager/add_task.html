@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <br>
+    <h2 class="mb-4">Add Task</h2>
+
+    <form action="{{ url_for('add_task') }}" method="post">
+    <div class="mb-3">
+        <label for="title" class="form-label">Task Title</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" id="description" name="description" placeholder="Description" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="duration" class="form-label">Duration (in hours)</label>
+        <input type="text" class="form-control" id="duration" name="duration" placeholder="e.g. 2.5">
+    </div>
+
+    <div class="mb-3">
+        <label for="deadline" class="form-label">Deadline</label>
+        <input type="date" class="form-control" id="deadline" name="deadline">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Task</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-danger mt-3" role="alert">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
+{% endblock %}
