@@ -1,29 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <br>
     {% for row in tasks %}
-        <div class="card">
-        <div class="card-header">
-            {{ row[1] }} | Deadline: {{ row[4] }} |
-            {% if row[5] %}
-                <span class="badge bg-success">Completed</span>
-            {% else %}
-                <span class="badge text-bg-warning">In process</span>
-            {% endif %}
-        </div>
-        <div class="card-body">
-            <figure>
-            <blockquote class="blockquote">
-                <p>{{ row[2] }}</p>
-            </blockquote>
-            <figcaption class="blockquote-footer">
-                {{ row[3] }}<cite title="Source Title"> hours left</cite>
-            </figcaption>
-            </figure>
-        </div>
-        </div>
         <br>
+        <div class="card">
+            <div class="card-header">
+                {{ row[1] }} | Deadline: {{ row[4] }} |
+                {% if row[5]==True %}
+                    <span class="badge bg-success">Completed</span>
+                {% else %}
+                    <span class="badge text-bg-warning">In process</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <figure>
+                <blockquote class="blockquote">
+                    <p>{{ row[2] }}</p>
+                </blockquote>
+                <figcaption class="blockquote-footer">
+                    {{ row[-1] }}<cite title="Source Title"> hours left</cite>
+                </figcaption>
+                <a href="/task/{{ row[0] }}" class="btn">Details</a>
+                </figure>
+            </div>
+        </div>
     {% endfor %}
 
 

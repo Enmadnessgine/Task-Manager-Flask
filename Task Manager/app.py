@@ -1,10 +1,11 @@
 import psycopg2
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, login_required, current_user, login_user
-from datetime import timedelta
+from flask_login import LoginManager, login_required, current_user, login_user, logout_user
+from datetime import timedelta, datetime
 from models.User import User
 from db import db_conn
+from calculate_duration import hours_left
 
 
 # Configuration
@@ -92,17 +93,69 @@ def login():
     return render_template('auth/login.html')
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
 @app.route("/profile", methods=['GET'])
 @login_required
 def profile():
     user_id = current_user.id
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM tasks WHERE user_id = %s', (user_id,))
-    tasks = cur.fetchall()
+    cur.execute('SELECT id, name, description, duration, deadline, is_completed, user_id, add_date, add_time FROM tasks WHERE user_id = %s', (user_id,))
+    raw_tasks = cur.fetchall()
+    now = datetime.now()
+    tasks = []
+
+    for task in raw_tasks:
+        task = list(task)
+        id, name, description, duration, deadline, is_completed, user_id, add_date, add_time = task
+        hours_left = None
+        if add_date and add_time and duration:
+            try:
+                start_datetime = datetime.combine(add_date, add_time)
+                deadline_datetime = start_datetime + timedelta(hours=duration)
+                delta = deadline_datetime - now
+                hours_left = round(delta.total_seconds() / 3600, 2)
+            except Exception as e:
+                print(f"Error computing hours_left: {e}")
+
+        if hours_left != None and hours_left > 0:
+            task.append(hours_left)
+        else:
+            task.append(0)
+
+        tasks.append(task)
+
     cur.close()
     conn.close()
+
     return render_template('task manager/profile.html', tasks=tasks, user_name=current_user.name)
+
+
+@app.route('/task/<int:task_id>')
+@login_required
+def view_task(task_id):
+    user_id = current_user.id
+    conn = db_conn()
+    cur = conn.cursor()
+
+    cur.execute('''SELECT id, name, description, duration, add_date, add_time, is_completed FROM tasks WHERE id = %s AND user_id = %s''', (task_id, user_id))
+    
+    task = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not task:
+        flash("Task not found or access denied.", "danger")
+        return redirect(url_for('profile'))
+
+    return render_template('task manager/task_details.html', task=task)
+
 
 
 @app.route("/add_task", methods=['POST', 'GET'])
@@ -117,9 +170,11 @@ def add_task():
         name = request.form.get('title')
         description = request.form.get('description')
         duration = request.form.get('duration')
+        
         deadline = request.form.get('deadline')
-
-        cur.execute('''INSERT INTO tasks (name, description, duration, deadline, user_id) VALUES(%s, %s, %s, %s, %s)''', (name, description, duration, deadline, user_id))
+        add_date = datetime.now().strftime('%Y-%m-%d')
+        add_time = datetime.now().strftime('%H:%M:%S')
+        cur.execute('''INSERT INTO tasks (name, description, duration, deadline, user_id, add_date, add_time) VALUES(%s, %s, %s, %s, %s, %s, %s)''', (name, description, duration, deadline, user_id, add_date, add_time))
         conn.commit()
         
         redirect(url_for('profile'))

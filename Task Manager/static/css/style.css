@@ -1,0 +1,13 @@
+.btn {
+  display: inline-block;
+  padding: 7px 15px;
+  background-color: #5390d1;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  float: right;
+}
+
+.badge{
+    float: right;
+}
