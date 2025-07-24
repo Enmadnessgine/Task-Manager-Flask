@@ -1,5 +1,71 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {{ task }}
+<br>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="card mb-4 shadow-sm">
+  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <span><strong>{{ task[0] }} | {{ task[1] }}</strong></span>
+    <button class="btn btn-danger btn-sm">Delete</button>
+  </div>
+
+  <div class="card-body">
+    <!-- Отображение текущих данных -->
+    <p><strong>Description:</strong> {{ task[2] }}</p>
+    <p><strong>Duration:</strong> {{ task[3] }} hours</p>
+    <p><strong>Date Added:</strong> {{ task[4] }}</p>
+    <p><strong>Time Added:</strong> {{ task[5] }}</p>
+    <p><strong>Priority:</strong> {{ task[7] }}</p>
+    <p>
+      <strong>Status:</strong>
+      {% if task[6] == True %}
+        <span class="badge bg-success">Completed</span>
+      {% else %}
+        <span class="badge bg-warning text-dark">In Process</span>
+      {% endif %}
+    </p>
+
+    <hr>
+    <h6>Edit Task</h6>
+
+    <form action="{{ url_for('view_task', task_id=task[0]) }}" method="post">
+      <div class="mb-2">
+        <label for="name{{ task[1] }}" class="form-label">Title</label>
+        <input type="text" name="name" id="name{{ task[0] }}" class="form-control" value="{{ task[1] }}">
+      </div>
+
+      <div class="mb-2">
+        <label for="description{{ task[2] }}" class="form-label">Description</label>
+        <textarea name="description" id="description{{ task[0] }}" class="form-control" rows="2">{{ task[2] }}</textarea>
+      </div>
+
+      <div class="mb-2">
+        <label for="duration{{ task[0] }}" class="form-label">Duration (hours)</label>
+        <input type="number" name="duration" id="duration{{ task[0] }}" class="form-control" value="{{ task[3] }}" min="0" step="0.5">
+      </div>
+
+      <div class="mb-2">
+        <label for="priority{{ task[0] }}" class="form-label">Priority</label>
+        <select name="priority" id="priority{{ task[0] }}" class="form-select">
+          <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option>
+          <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="is_completed{{ task[0] }}" class="form-label">Status</label>
+        <select name="is_completed" id="is_completed{{ task[0] }}" class="form-select">
+          <option value="false" {% if not task.is_completed %}selected{% endif %}>In Process</option>
+          <option value="true" {% if task.is_completed %}selected{% endif %}>Completed</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-success">Save Changes</button>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

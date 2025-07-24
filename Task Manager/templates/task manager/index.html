@@ -6,5 +6,66 @@
 
 {% block content %}
 <br>
-Hello, this is the Task Manager home page!
+
+  <header class="py-5 text-center bg-white shadow-sm mb-4">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Task Manager</h1>
+      <p class="lead text-muted">
+        Plan your day. Track your progress. Stay focused.
+      </p>
+      <a href="/profile" class="btn btn-primary btn-lg mt-3">Go to Tasks</a>
+    </div>
+  </header>
+
+  <!-- Описание -->
+  <section class="container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 text-center">
+        <h2 class="mb-4">What is Task Manager?</h2>
+        <p class="fs-5 text-muted">
+          Task Manager is a simple and efficient tool to help you manage your personal or work-related tasks.
+          Whether you're organizing your day or planning a project, our system helps you stay productive.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Возможности -->
+  <section class="container mb-5">
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Create & Edit Tasks</h5>
+            <p class="card-text text-muted">Add, update, and manage all your tasks in one place.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Track Deadlines</h5>
+            <p class="card-text text-muted">Stay ahead by tracking due dates and time left.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Set Priorities</h5>
+            <p class="card-text text-muted">Mark what's important and focus on what matters most.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Футер -->
+  <footer class="text-center text-muted py-4 border-top">
+    <small>&copy; 2025 Task Manager. All rights reserved.</small>
+  </footer>
+
+
 {% endblock %}

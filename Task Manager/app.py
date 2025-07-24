@@ -5,7 +5,6 @@ from flask_login import LoginManager, login_required, current_user, login_user, 
 from datetime import timedelta, datetime
 from models.User import User
 from db import db_conn
-from calculate_duration import hours_left
 
 
 # Configuration
@@ -104,16 +103,20 @@ def logout():
 @login_required
 def profile():
     user_id = current_user.id
+
+    status = request.args.get('status')       # 'complete' / 'incomplete'
+    priority = request.args.get('priority')   # 'high'
+
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id, name, description, duration, deadline, is_completed, user_id, add_date, add_time FROM tasks WHERE user_id = %s', (user_id,))
+    cur.execute('SELECT id, name, description, duration, deadline, is_completed, user_id, add_date, add_time, priority FROM tasks WHERE user_id = %s', (user_id,))
     raw_tasks = cur.fetchall()
     now = datetime.now()
     tasks = []
 
     for task in raw_tasks:
         task = list(task)
-        id, name, description, duration, deadline, is_completed, user_id, add_date, add_time = task
+        id, name, description, duration, deadline, is_completed, user_id, add_date, add_time, task_priority = task
         hours_left = None
         if add_date and add_time and duration:
             try:
@@ -129,33 +132,60 @@ def profile():
         else:
             task.append(0)
 
+        if status == 'complete' and not is_completed:
+            continue  
+        if status == 'incomplete' and is_completed:
+            continue
+        if priority and task_priority != priority:
+            continue
+
         tasks.append(task)
 
     cur.close()
     conn.close()
 
-    return render_template('task manager/profile.html', tasks=tasks, user_name=current_user.name)
+    return render_template('task manager/profile.html', tasks=tasks, user_name=current_user.name, selected_status=status, selected_priority=priority)
 
 
-@app.route('/task/<int:task_id>')
+@app.route('/profile/task/<int:task_id>', methods=['GET', 'POST'])
 @login_required
 def view_task(task_id):
     user_id = current_user.id
     conn = db_conn()
     cur = conn.cursor()
 
-    cur.execute('''SELECT id, name, description, duration, add_date, add_time, is_completed FROM tasks WHERE id = %s AND user_id = %s''', (task_id, user_id))
-    
+    cur.execute('''SELECT id, name, description, duration, add_date, add_time, is_completed, priority FROM tasks WHERE id = %s AND user_id = %s''', (task_id, user_id))
+
     task = cur.fetchone()
-    cur.close()
-    conn.close()
+
 
     if not task:
+        cur.close()
+        conn.close()
         flash("Task not found or access denied.", "danger")
         return redirect(url_for('profile'))
 
-    return render_template('task manager/task_details.html', task=task)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        duration = request.form.get('duration')
+        priority = request.form.get('priority')
+        status_str = request.form.get('is_completed')
+        status = status_str == 'true'
 
+        cur.execute('''UPDATE tasks SET name = %s, description = %s, duration = %s, priority = %s, is_completed = %s WHERE id = %s AND user_id = %s''', (name, description, duration, priority, status, task_id, user_id))
+
+        conn.commit()
+        flash("Task updated successfully.", "success")
+
+        cur.execute('''
+            SELECT id, name, description, duration, add_date, add_time, is_completed, priority FROM tasks WHERE id = %s AND user_id = %s''', (task_id, user_id))
+        task = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return render_template('task manager/task_details.html', task=task)
 
 
 @app.route("/add_task", methods=['POST', 'GET'])

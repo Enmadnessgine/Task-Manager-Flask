@@ -1,30 +1,68 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% for row in tasks %}
-        <br>
-        <div class="card">
-            <div class="card-header">
-                {{ row[1] }} | Deadline: {{ row[4] }} |
-                {% if row[5]==True %}
-                    <span class="badge bg-success">Completed</span>
-                {% else %}
-                    <span class="badge text-bg-warning">In process</span>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                <figure>
-                <blockquote class="blockquote">
-                    <p>{{ row[2] }}</p>
-                </blockquote>
-                <figcaption class="blockquote-footer">
-                    {{ row[-1] }}<cite title="Source Title"> hours left</cite>
-                </figcaption>
-                <a href="/task/{{ row[0] }}" class="btn">Details</a>
-                </figure>
-            </div>
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- Боковая панель -->
+    <div class="col-md-3 col-lg-2 bg-white border-end p-3">
+      <h5 class="mb-3">Filters</h5>
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">All Tasks</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile', status='incomplete') }}">In Process</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile', status='complete') }}">Completed</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile', priority='high') }}">High Priority</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('profile', priority='low') }}">Low Priority</a></li>
+      </ul>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="col-md-9 col-lg-10 py-3">
+
+      <!-- Приветствие -->
+      <div class="card mb-3">
+        <div class="card-body">
+          You entered as <strong>{{ user_name }}</strong>
         </div>
-    {% endfor %}
+      </div>
 
+      <!-- Список задач -->
+      {% for row in tasks %}
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              {{ row[1] }} | Deadline: {{ row[4] }} | 
+              {% if row[5] %}
+                <span class="badge bg-success">Completed</span>
+              {% else %}
+                <span class="badge text-bg-warning">In process</span>
+              {% endif %}
 
+              {% if row[9]=='high' %}
+                &nbsp<span class="badge text-bg-danger">{{ row[9] }}</span>
+              {% elif row[9]=='medium' %}
+                &nbsp<span class="badge text-bg-warning">{{ row[9] }}</span>
+              {% elif row[9]=='low' %}
+                &nbsp<span class="badge text-bg-secondary">{{ row[9] }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card-body">
+            <figure>
+              <blockquote class="blockquote">
+                <p>{{ row[2] }}</p>
+              </blockquote>
+              <figcaption class="blockquote-footer">
+                {{ row[-1] }} <cite title="Source Title">hours left</cite>
+              </figcaption>
+              <a href="/profile/task/{{ row[0] }}" class="btn btn-primary">Details</a>
+            </figure>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
 {% endblock %}
