@@ -9,7 +9,7 @@ from db import db_conn
 
 # Configuration
 app = Flask(__name__)
-app.secret_key = 'f8Xj9qZ2mC7KsWdT3VpL'
+app.secret_key = 'secret'
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)
 
 

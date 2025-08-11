@@ -1,6 +1,6 @@
 import psycopg2
 
-conn = psycopg2.connect(database='taskmanager_db', host='localhost', user='postgres', password='1234',port='5432')
+conn = psycopg2.connect(database='db', host='localhost', user='postgres', password='password',port='port')
 cur = conn.cursor()
 
 cur.execute('''CREATE TABLE IF NOT EXISTS tasks (id serial PRIMARY KEY, name varchar(100), description text, duration integer);''')
